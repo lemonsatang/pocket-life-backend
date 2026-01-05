@@ -16,6 +16,8 @@ public class UserController {
 
     private final UserService userService;
 
+
+
     // 회원가입
     @PostMapping("/join")
     public ResponseEntity<String> join(@RequestBody UserDTO userDTO){
@@ -28,6 +30,14 @@ public class UserController {
             // 2. 실패했을 때: 400 Bad Request 상태코드 + 에러 메시지를 보냄
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입 실패");
         }
+    }
+
+    // 아이디 중복 확인
+    @PostMapping("/idChk")
+    public ResponseEntity<Boolean> idChk(@RequestBody UserDTO userDTO){
+        boolean isDuplicate = userService.idChk(userDTO.getUsrid());
+
+        return ResponseEntity.ok(isDuplicate);
     }
 
 }

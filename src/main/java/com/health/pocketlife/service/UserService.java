@@ -36,4 +36,7 @@ public class UserService {
     }
 
 
+    public boolean idChk(String usrid) {
+        return userRepository.existsByUsrid(usrid);
+    }
 }
