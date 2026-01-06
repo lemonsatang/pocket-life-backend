@@ -17,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -34,46 +33,48 @@ public class SecurityConfig {
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // 1. CORS 설정: 리액트와의 통신 허용
+        // CORS 설정 연결
         http.cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
-                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
-                configuration.setAllowCredentials(true);
-                configuration.setExposedHeaders(Collections.singletonList("Authorization")); // JWT 헤더 노출
-                configuration.setMaxAge(3600L);
+                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173")); // 리액트 주소 허용
+                configuration.setAllowedMethods(Collections.singletonList("*")); // 모든 HTTP 메서드 허용
+                configuration.setAllowCredentials(true); // 자격 증명 허용
+                configuration.setAllowedHeaders(Collections.singletonList("*")); // 모든 헤더 허용
+                configuration.setMaxAge(3600L); // 캐싱 시간
+
+                // 응답 헤더에 Authorization(JWT)을 노출하도록 설정 (나중에 필요함)
+                configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+
                 return configuration;
             }
         }));
 
-        // 2. CSRF 및 기본 로그인창 비활성화 (JWT 사용)
+        // jwt 방식을 써서 보안 기능 해제
         http.csrf((auth) -> auth.disable());
         http.formLogin((auth) -> auth.disable());
         http.httpBasic((auth) -> auth.disable());
 
-        // 3. 경로별 권한 설정
+        // 경로별 접근여부 설정
         http.authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/login", "/join", "/idChk").permitAll()
+                .requestMatchers("/join", "/login", "/idChk").permitAll()
                 .anyRequest().authenticated());
 
-        // 4. 세션 정책: Stateless 설정
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 5. 로그인 필터 추가
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
                 UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    // 비밀번호 암호화
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(); // 비밀번호 암호화 객체 생성
     }
 }
