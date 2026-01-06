@@ -1,5 +1,14 @@
+# 빌드 결과물 및 임시 파일
 .gradle/
 build/
 out/
 bin/
 *.class
+
+# IDE (IntelliJ, Android Studio) 설정 폴더 전체
+.idea/
+*.iml
+
+# OS 관련 임시 파일
+.DS_Store
+Thumbs.db
