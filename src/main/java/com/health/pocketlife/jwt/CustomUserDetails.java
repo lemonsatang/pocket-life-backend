@@ -27,12 +27,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public @Nullable String getPassword() {
-        return "";
+        return user.getPasswd();
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return user.getUsrid();
     }
 
     // 아래 설정들은 일단 모두 true로 반환해두면 돼
