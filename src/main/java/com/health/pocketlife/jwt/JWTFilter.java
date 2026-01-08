@@ -22,39 +22,42 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // 1. 헤더에서 Authorization 추출
         String authorization = request.getHeader("Authorization");
 
-        // 2. 토큰이 없거나 형식이 맞지 않으면 다음 필터로 넘김
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 3. "Bearer " 제거 후 순수 토큰만 추출
         String token = authorization.split(" ")[1];
 
-        // 4. 토큰 만료 여부 확인
         if (jwtUtil.isExpired(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 5. 토큰에서 유저 정보 획득
         String username = jwtUtil.getUsrid(token);
         String role = jwtUtil.getRole(token);
 
-        // 6. 일회성 인증 세션 생성
+        // [수정 포인트] Enum 타입에 맞게 "ROLE_" 제거 후 객체 생성
+        // 하지만 시큐리티 인증에는 "ROLE_USER" 형태가 필요하므로 유연하게 처리합니다.
+        String pureRole = role.replace("ROLE_", "");
+
         User user = User.builder()
                 .usrid(username)
-                .role(Role.valueOf(role))
-                .passwd("temp_pw") // 비밀번호는 검증에 사용되지 않음
+                .role(Role.valueOf(role)) // Enum에는 USER만 저장되어 있을 것이므로
+                .passwd("temp_pw")
                 .build();
 
+        // CustomUserDetails가 내부적으로 ROLE_ 접두사를 붙여 권한을 생성하도록 설계됨
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
-        // 시큐리티 컨텍스트에 인증 정보 등록
+        Authentication authToken = new UsernamePasswordAuthenticationToken(
+                customUserDetails,
+                null,
+                customUserDetails.getAuthorities() // 여기서 ROLE_USER가 반환됨
+        );
+
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);

@@ -65,6 +65,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 // 로그인 / 회원가입 관련은 무조건 허용
                 .requestMatchers("/login", "/join", "/idChk").permitAll()
+                .requestMatchers("/api/tx/**").hasAuthority("ROLE_USER") // 가계부 API는 USER 권한 필요
                 // 그 외 요청은 JWT 인증 필요
                 .anyRequest().authenticated()
         );
@@ -74,7 +75,12 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
         // JWTFilter 추가
-        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+        http.addFilterBefore(
+                new JWTFilter(
+                        jwtUtil
+                ),
+                LoginFilter.class
+        );
         // 핵심: 로그인 요청은 LoginFilter가 전담 처리
         http.addFilterAt(
                 new LoginFilter(
