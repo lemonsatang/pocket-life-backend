@@ -62,7 +62,7 @@ public class SecurityConfig {
         // 접근 권한 설정
         http.authorizeHttpRequests(auth -> auth
                 // 로그인 / 회원가입 관련은 무조건 허용
-                .requestMatchers("/login", "/join", "/idChk","/register").permitAll()
+                .requestMatchers("/login", "/join", "/idChk").permitAll()
                 // 그 외 요청은 JWT 인증 필요
                 .anyRequest().authenticated()
         );
