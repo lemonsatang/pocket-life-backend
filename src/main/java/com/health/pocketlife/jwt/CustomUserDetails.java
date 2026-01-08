@@ -25,14 +25,15 @@ public class CustomUserDetails implements UserDetails {
         return collection;
     }
 
+    // 실제 암호화된 비밀번호 반환
     @Override
-    public @Nullable String getPassword() {
-        return "";
+    public String getPassword() {
+        return user.getPasswd();
     }
-
+    //  실제 사용자 ID 반환
     @Override
     public String getUsername() {
-        return "";
+        return user.getUsrid();
     }
 
     // 아래 설정들은 일단 모두 true로 반환해두면 돼

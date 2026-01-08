@@ -22,6 +22,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
+        System.out.println("필터가 받은 ID: " + username);
+        System.out.println("필터가 받은 PW: " + password);
+
         // 2. 시큐리티에서 사용하기 위해 Token에 담음
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
 
@@ -43,5 +46,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 4. 로그인 성공 시 여기서 JWT 토큰을 발급해서 응답헤더에 넣어줄 거야 (다음 단계)
         System.out.println("로그인 성공!");
+    }
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+        // 여기서 에러 메시지를 확인하면 왜 403이 나는지 알 수 있습니다.
+        System.out.println("로그인 실패 이유: " + failed.getMessage());
+        response.setStatus(401); // 실패 시 401을 반환하도록 명시
     }
 }

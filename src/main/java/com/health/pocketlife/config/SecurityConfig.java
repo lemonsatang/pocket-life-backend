@@ -1,5 +1,7 @@
 package com.health.pocketlife.config;
 
+
+import com.health.pocketlife.jwt.JWTFilter;
 import com.health.pocketlife.jwt.JWTUtil;
 import com.health.pocketlife.jwt.LoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -71,7 +73,8 @@ public class SecurityConfig {
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
-
+        // JWTFilter 추가
+        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
         // 핵심: 로그인 요청은 LoginFilter가 전담 처리
         http.addFilterAt(
                 new LoginFilter(

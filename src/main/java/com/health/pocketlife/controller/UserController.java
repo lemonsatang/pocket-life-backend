@@ -1,10 +1,12 @@
 package com.health.pocketlife.controller;
 
 import com.health.pocketlife.dto.UserDTO;
+import com.health.pocketlife.jwt.CustomUserDetails;
 import com.health.pocketlife.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,5 +41,4 @@ public class UserController {
 
         return ResponseEntity.ok(isDuplicate);
     }
-
 }
