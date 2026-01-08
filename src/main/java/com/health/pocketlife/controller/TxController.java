@@ -24,8 +24,19 @@ public class TxController {
     @GetMapping("/latest") public List<Tx> latest(Principal p){ return txRepository.findTop10ByUserIdOrderByTxDateDesc(uid(p)); }
 
     @GetMapping("/summary") public TxDTO.TxSummary summary(@RequestParam int year, @RequestParam int month, Principal p){
-        var list=list(year,month,p); long in=0, ex=0; for(Tx t:list){ if("INCOME".equals(t.getType())) in+=t.getAmount(); else ex+=t.getAmount(); }
-        return new TxDTO.TxSummary(in,ex,in-ex);
+        List<Tx> list = list(year, month, p);
+        long totalIncome = 0;
+        long totalExpense = 0;
+
+        for(Tx t : list){
+            // Enum 값을 비교할 때는 == 을 사용하는 것이 가장 정확합니다.
+            if(t.getType() == Tx.Type.INCOME) {
+                totalIncome += t.getAmount();
+            } else if(t.getType() == Tx.Type.EXPENSE) {
+                totalExpense += t.getAmount();
+            }
+        }
+        return new TxDTO.TxSummary(totalIncome, totalExpense, totalIncome - totalExpense);
     }
 
     @PostMapping public Tx create(@RequestBody TxDTO.TxRequest req, Principal p){
