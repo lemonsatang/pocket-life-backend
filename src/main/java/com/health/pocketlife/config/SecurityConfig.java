@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -37,65 +38,50 @@ public class SecurityConfig {
     }
 
     @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // CORS 설정 (프론트엔드 접근 허용)
+@Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        // 1. CORS 설정: 팀원의 상세 설정과 사용님의 로컬 포트를 통합
         http.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(
-                        Collections.singletonList("http://localhost:5173"));
-                config.setAllowedMethods(Collections.singletonList("*"));
-                config.setAllowedHeaders(Collections.singletonList("*"));
+                config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
                 config.setAllowCredentials(true);
-                config.setExposedHeaders(
-                        Collections.singletonList("Authorization"));
+                config.setExposedHeaders(Collections.singletonList("Authorization"));
                 config.setMaxAge(3600L);
                 return config;
             }
         }));
 
-        // JWT 사용 → 기본 보안 기능 전부 비활성화
         http.csrf(csrf -> csrf.disable());
         http.formLogin(form -> form.disable());
         http.httpBasic(basic -> basic.disable());
 
-        // 접근 권한 설정
+        // 2. 접근 권한: 사용님이 성공시킨 가계부 권한 설정 유지
         http.authorizeHttpRequests(auth -> auth
-                // 로그인 / 회원가입 관련은 무조건 허용
                 .requestMatchers("/login", "/join", "/idChk").permitAll()
-                .requestMatchers("/api/tx/**").hasAuthority("ROLE_USER") // 가계부 API는 USER 권한 필요
-                // 그 외 요청은 JWT 인증 필요
+                .requestMatchers("/api/tx/**").hasAuthority("ROLE_USER") 
                 .anyRequest().authenticated()
         );
 
-        // 세션 사용 안 함 (JWT는 무상태)
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
-        // JWTFilter 추가
-        http.addFilterBefore(
-                new JWTFilter(
-                        jwtUtil
-                ),
-                LoginFilter.class
-        );
-        // 핵심: 로그인 요청은 LoginFilter가 전담 처리
-        http.addFilterAt(
-                new LoginFilter(
-                        authenticationManager(authenticationConfiguration),
-                        jwtUtil
-                ),
-                UsernamePasswordAuthenticationFilter.class
-        );
+
+        // 3. 필터 설정: 사용님의 JWT 필터 로직 그대로 유지
+        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
+                UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-    // 비밀번호 암호화
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-}
