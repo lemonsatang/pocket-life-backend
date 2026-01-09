@@ -1,5 +1,7 @@
 package com.health.pocketlife.config;
 
+
+import com.health.pocketlife.jwt.JWTFilter;
 import com.health.pocketlife.jwt.JWTUtil;
 import com.health.pocketlife.jwt.LoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +30,10 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
 
+    // 로그인 인증을 처리하는 핵심 매니저
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
@@ -41,39 +45,43 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // 1. CORS 설정: 리액트와의 통신 허용
-        http.cors((cors) -> cors.configurationSource(new CorsConfigurationSource() {
+@Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        // 1. CORS 설정: 팀원의 상세 설정과 사용님의 로컬 포트를 통합
+        http.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
-                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
-                configuration.setAllowCredentials(true);
-                configuration.setExposedHeaders(Collections.singletonList("Authorization")); // JWT 헤더 노출
-                configuration.setMaxAge(3600L);
-                return configuration;
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
+                config.setAllowCredentials(true);
+                config.setExposedHeaders(Collections.singletonList("Authorization"));
+                config.setMaxAge(3600L);
+                return config;
             }
         }));
 
-        // 2. CSRF 및 기본 로그인창 비활성화 (JWT 사용)
-        http.csrf((auth) -> auth.disable());
-        http.formLogin((auth) -> auth.disable());
-        http.httpBasic((auth) -> auth.disable());
+        http.csrf(csrf -> csrf.disable());
+        http.formLogin(form -> form.disable());
+        http.httpBasic(basic -> basic.disable());
 
-        // 3. 경로별 권한 설정
-        http.authorizeHttpRequests((auth) -> auth
+        // 2. 접근 권한: 사용님이 성공시킨 가계부 권한 설정 유지
+        http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/join", "/idChk").permitAll()
-                .anyRequest().authenticated());
+                .requestMatchers("/api/tx/**").hasAuthority("ROLE_USER") 
+                .anyRequest().authenticated()
+        );
 
-        // 4. 세션 정책: Stateless 설정
-        http.sessionManagement((session) -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
 
-        // 5. 로그인 필터 추가
+        // 3. 필터 설정: 사용님의 JWT 필터 로직 그대로 유지
+        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
                 UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-}

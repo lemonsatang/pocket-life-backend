@@ -6,6 +6,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TxRepository extends JpaRepository<Tx, Long> {
-    // 특정 유저의 해당 날짜 가계부 내역 조회
-    List<Tx> findAllByUserIdAndTxDate(String userId, LocalDate txDate);
+
+    // 특정 달(시작~끝) 거래내역: 최신순
+    List<Tx> findByUserIdAndTxDateBetweenOrderByTxDateDesc(String userId, LocalDate start, LocalDate end);
+
+    // 최근 10개: 대시보드 “최근 거래” 용도
+    List<Tx> findTop10ByUserIdOrderByTxDateDesc(String userId);
+    // 거래내역 오래된 순 정렬
+    List<Tx> findTop10ByUserIdOrderByTxDateAscIdAsc(String userId);
+    // 거래내역 최신 순 정렬
+    List<Tx> findTop10ByUserIdOrderByTxDateDescIdDesc(String userId);
 }
