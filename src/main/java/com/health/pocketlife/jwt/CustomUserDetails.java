@@ -20,10 +20,10 @@ public class CustomUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
 
-        String role = user.getRole().toString(); // 예: "USER"
+        // Role을 String으로 변환 (예: "USER")
+        String role = user.getRole().toString();
 
-        // [수정 포인트] 시큐리티의 hasRole("USER")은 "ROLE_USER"를 검사합니다.
-        // 접두사가 없다면 강제로 붙여서 권한을 등록합니다.
+        // Spring Security의 권한 인식 규칙인 "ROLE_" 접두사 보장
         if (!role.startsWith("ROLE_")) {
             role = "ROLE_" + role;
         }
@@ -33,7 +33,6 @@ public class CustomUserDetails implements UserDetails {
     }
 
     @Override
-@Override
     public String getPassword() {
         return user.getPasswd();
     }
@@ -43,8 +42,23 @@ public class CustomUserDetails implements UserDetails {
         return user.getUsrid();
     }
 
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

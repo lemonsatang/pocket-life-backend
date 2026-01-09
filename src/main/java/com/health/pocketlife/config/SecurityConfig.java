@@ -1,6 +1,5 @@
 package com.health.pocketlife.config;
 
-
 import com.health.pocketlife.jwt.JWTFilter;
 import com.health.pocketlife.jwt.JWTUtil;
 import com.health.pocketlife.jwt.LoginFilter;
@@ -30,7 +29,6 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
 
-    // 로그인 인증을 처리하는 핵심 매니저
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration) throws Exception {
@@ -45,10 +43,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-@Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        // 1. CORS 설정: 팀원의 상세 설정과 사용님의 로컬 포트를 통합
+        // 1. CORS 설정
         http.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
@@ -63,25 +58,30 @@ public class SecurityConfig {
             }
         }));
 
+        // 2. 기본 보안 설정 비활성화
         http.csrf(csrf -> csrf.disable());
         http.formLogin(form -> form.disable());
         http.httpBasic(basic -> basic.disable());
 
-        // 2. 접근 권한: 사용님이 성공시킨 가계부 권한 설정 유지
+        // 3. 권한 설정
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/join", "/idChk").permitAll()
-                .requestMatchers("/api/tx/**").hasAuthority("ROLE_USER") 
+                .requestMatchers("/api/tx/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
         );
 
+        // 4. 세션 설정 (Stateless)
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
-        // 3. 필터 설정: 사용님의 JWT 필터 로직 그대로 유지
+        // 5. 필터 추가
         http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
-                UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(
+                new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
+                UsernamePasswordAuthenticationFilter.class
+        );
 
         return http.build();
     }
+}
