@@ -3,6 +3,7 @@ package com.health.pocketlife.controller;
 import com.health.pocketlife.entity.Todo;
 import com.health.pocketlife.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -25,5 +26,11 @@ public class TodoController {
     public Todo create(@RequestBody Todo todo, Principal principal) {
         todo.setUserId(principal.getName());
         return repository.save(todo);
+    }
+
+    @Transactional
+    @DeleteMapping("/delete/{id}")
+    public void delete(@PathVariable Long id) {
+        repository.deleteByTodoId(id);
     }
 }
