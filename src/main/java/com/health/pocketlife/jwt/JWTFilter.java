@@ -39,10 +39,6 @@ public class JWTFilter extends OncePerRequestFilter {
         String username = jwtUtil.getUsrid(token);
         String role = jwtUtil.getRole(token);
 
-        // [수정 포인트] Enum 타입에 맞게 "ROLE_" 제거 후 객체 생성
-        // 하지만 시큐리티 인증에는 "ROLE_USER" 형태가 필요하므로 유연하게 처리합니다.
-        String pureRole = role.replace("ROLE_", "");
-
         User user = User.builder()
                 .usrid(username)
                 .role(Role.valueOf(role)) // Enum에는 USER만 저장되어 있을 것이므로
@@ -51,6 +47,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // CustomUserDetails가 내부적으로 ROLE_ 접두사를 붙여 권한을 생성하도록 설계됨
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
 
         Authentication authToken = new UsernamePasswordAuthenticationToken(
                 customUserDetails,
@@ -61,5 +58,6 @@ public class JWTFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
+
     }
 }

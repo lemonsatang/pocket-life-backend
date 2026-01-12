@@ -4,6 +4,8 @@ import com.health.pocketlife.entity.Todo;
 import com.health.pocketlife.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,8 +21,10 @@ public class TodoController {
         return repository.findAllByUserIdAndDoDate(userId, date);
     }
 
-    @PostMapping
-    public Todo create(@RequestBody Todo todo) {
+    @PostMapping("/create")
+    public Todo create(@RequestBody Todo todo, Principal principal) {
+        todo.setUserId(principal.getName());
+        System.out.println("================ 아이디: "+principal.getName());
         return repository.save(todo);
     }
 }

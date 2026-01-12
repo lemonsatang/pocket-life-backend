@@ -65,6 +65,8 @@ public class SecurityConfig {
 
         // 3. 권한 설정
         http.authorizeHttpRequests(auth -> auth
+                // 모든 경로의 OPTIONS 요청(CORS 검사용)을 허용함
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/login", "/join", "/idChk").permitAll()
                 .requestMatchers("/api/tx/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
