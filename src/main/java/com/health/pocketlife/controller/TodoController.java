@@ -16,15 +16,14 @@ import java.util.List;
 public class TodoController {
     private final TodoRepository repository;
 
-    @GetMapping
-    public List<Todo> getList(@RequestParam String userId, @RequestParam LocalDate date) {
-        return repository.findAllByUserIdAndDoDate(userId, date);
+    @GetMapping("/getList")
+    public List<Todo> getList(Principal principal, @RequestParam LocalDate date) {
+        return repository.findAllByUserIdAndDoDate(principal.getName(), date);
     }
 
     @PostMapping("/create")
     public Todo create(@RequestBody Todo todo, Principal principal) {
         todo.setUserId(principal.getName());
-        System.out.println("================ 아이디: "+principal.getName());
         return repository.save(todo);
     }
 }
