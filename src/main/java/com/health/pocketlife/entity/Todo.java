@@ -13,13 +13,13 @@ public class Todo {
     @Column(name = "TODOID")
     private Long todoId;
 
-    @Column(name = "USRID")
+    @Column(name = "USRID", length = 20)
     private String userId;
 
     @Column(name = "DODATE")
     private LocalDate doDate;
 
-    @Column(name = "CONTENT")
+    @Column(name = "CONTENT", length = 60)
     private String content;
 
     @Column(name = "IS_DONE")

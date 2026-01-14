@@ -19,20 +19,25 @@ public class User {
     @Column(name = "usrid", length = 20)
     private String usrid; // 아이디(pk)
 
-    @Column(name = "usrnm", nullable = false)
+    @Column(name = "usrnm", nullable = false, length = 10)
     private String usrnm; // 이름
 
-    @Column(name = "passwd", nullable = false)
+    @Column(name = "passwd", nullable = false, length = 100)
     private String passwd; // 비밀번호
 
+    @Column(length = 40)
     private String email;
+
+    @Column(length = 12)
     private String tel;
+
+    @Column(length = 10)
     private String birth;
 
-    @Column(name = "mk_consent")
+    @Column(name = "mk_consent", length = 1)
     private String mkConsent = "N"; // 마케팅 동의 (기본값 N)
 
-    @Column(name = "mail_consent")
+    @Column(name = "mail_consent", length = 1)
     private String mailConsent = "N"; // 메일 동의 (기본값 N)
 
     @Enumerated(EnumType.STRING)
