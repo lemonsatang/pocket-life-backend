@@ -21,4 +21,7 @@ public class Todo {
 
     @Column(name = "CONTENT")
     private String content;
+
+    @Column(name = "IS_DONE")
+    private Boolean isDone = false;
 }

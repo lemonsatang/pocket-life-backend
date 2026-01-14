@@ -2,6 +2,8 @@ package com.health.pocketlife.repository;
 
 import com.health.pocketlife.entity.Todo;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -10,4 +12,8 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     List<Todo> findAllByUserIdAndDoDate(String userId, LocalDate doDate);
 
     void deleteByTodoId(Long todoId);
+
+    Todo findByTodoId(Long todoId);
+
+    List<Todo> findByUserIdAndDoDateBetween(String name, LocalDate start, LocalDate end);
 }
