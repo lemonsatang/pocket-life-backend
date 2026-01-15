@@ -68,7 +68,9 @@ public class SecurityConfig {
                 // 모든 경로의 OPTIONS 요청(CORS 검사용)을 허용함
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/login", "/join", "/idChk").permitAll()
-                .requestMatchers("/api/tx/**").hasAuthority("ROLE_USER")
+                // [수정] 기존 ROLE_USER 권한 체크 -> .authenticated() 로 변경하여 로그인한 모든 유저 허용
+                // 통계 페이지 등에서 403 에러 방지를 위해 /api/tx와 /api/todo 경로 오픈
+                .requestMatchers("/api/tx/**", "/api/todo/**").authenticated()
                 .anyRequest().authenticated()
         );
 

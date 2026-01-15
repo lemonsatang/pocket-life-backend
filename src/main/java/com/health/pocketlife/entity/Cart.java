@@ -29,4 +29,8 @@ public class Cart {
     // 누락되었던 수량 필드 추가
     @Column(name = "item_count")
     private Integer count = 1;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

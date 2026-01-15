@@ -25,6 +25,22 @@ public class Meal {
     @Column(name = "calories")
     private Integer calories;
 
+    @Column(name = "protein")
+    private Integer protein;
+
+    @Column(name = "fat")
+    private Integer fat;
+
+    @Column(name = "carbs")
+    private Integer carbs;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(name = "meal_date")
     private LocalDate mealDate;
 
@@ -34,8 +50,10 @@ public class Meal {
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
-        if (this.calories == null) {
-            this.calories = 0;
-        }
+        if (this.calories == null) this.calories = 0;
+        if (this.protein == null) this.protein = 0;
+        if (this.fat == null) this.fat = 0;
+        if (this.carbs == null) this.carbs = 0;
+        if (this.quantity == null) this.quantity = 1;
     }
 }

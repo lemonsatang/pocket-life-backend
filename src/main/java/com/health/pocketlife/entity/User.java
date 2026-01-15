@@ -28,7 +28,7 @@ public class User {
     @Column(length = 40)
     private String email;
 
-    @Column(length = 12)
+    @Column(length = 20)
     private String tel;
 
     @Column(length = 10)
