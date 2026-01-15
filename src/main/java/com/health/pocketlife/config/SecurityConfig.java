@@ -69,8 +69,8 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/login", "/join", "/idChk").permitAll()
                 // [수정] 기존 ROLE_USER 권한 체크 -> .authenticated() 로 변경하여 로그인한 모든 유저 허용
-                // 통계 페이지 등에서 403 에러 방지를 위해 /api/tx와 /api/todo 경로 오픈
-                .requestMatchers("/api/tx/**", "/api/todo/**").authenticated()
+                // 통계 페이지 등에서 403 에러 방지를 위해 /api/tx, /api/todo, /api/stats 경로 오픈
+                .requestMatchers("/api/tx/**", "/api/todo/**", "/api/stats/**").authenticated()
                 .anyRequest().authenticated()
         );
 
