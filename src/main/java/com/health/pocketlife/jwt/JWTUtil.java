@@ -66,7 +66,14 @@ public class JWTUtil {
                     .getPayload()
                     .getExpiration()
                     .before(new Date());
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            System.out.println("토큰이 만료되었습니다.");
+            return true;
+        } catch (io.jsonwebtoken.security.SignatureException e) {
+            System.out.println("토큰 서명이 일치하지 않습니다. (Secret Key 불일치 가능성)");
+            return true;
         } catch (Exception e) {
+            System.out.println("토큰 검증 중 오류 발생: " + e.getMessage());
             return true; // 에러 발생 시 만료된 것으로 처리
         }
     }

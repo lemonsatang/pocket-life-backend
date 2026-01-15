@@ -31,13 +31,19 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String token = authorization.split(" ")[1];
 
+        // [디버그 로그] 토큰 검증 시작
+        System.out.println("DEBUG: Token received: " + token.substring(0, 10) + "...");
+
         if (jwtUtil.isExpired(token)) {
+            System.out.println("DEBUG: Token is expired or invalid.");
             filterChain.doFilter(request, response);
             return;
         }
 
         String username = jwtUtil.getUsrid(token);
         String role = jwtUtil.getRole(token);
+        
+        System.out.println("DEBUG: User verified. Username: " + username + ", Role: " + role);
 
         User user = User.builder()
                 .usrid(username)
