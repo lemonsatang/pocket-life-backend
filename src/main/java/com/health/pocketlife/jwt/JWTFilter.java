@@ -61,6 +61,9 @@ public class JWTFilter extends OncePerRequestFilter {
                 customUserDetails.getAuthorities() // 여기서 ROLE_USER가 반환됨
         );
 
+        // [2026-01-16 최종 점검] 인증 객체 생성 직후 권한 로그 출력
+        System.out.println("DEBUG: Auth Success. Authorities: " + customUserDetails.getAuthorities());
+
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
