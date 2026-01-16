@@ -22,8 +22,8 @@ public class User {
     @Column(name = "usrnm", nullable = false, length = 10)
     private String usrnm; // 이름
 
-    @Column(name = "passwd", nullable = false, length = 100)
-    private String passwd; // 비밀번호
+    @Column(name = "passwd", nullable = true, length = 100)
+    private String passwd; // 비밀번호, 소셜 로그인을 위해 비밀번호 null 허용
 
     @Column(length = 40)
     private String email;
@@ -40,7 +40,14 @@ public class User {
     @Column(name = "mail_consent", length = 1)
     private String mailConsent = "N"; // 메일 동의 (기본값 N)
 
+    @Column(length = 20)
+    private String provider; // 일반가입:local,  소셜:kakao, naver, google...
+    
+    @Column(name = "provider_id")
+    private String providerId; // 소셜 서비스에서 넘겨주는 고유 식별번호
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private Role role;
 
     @Builder
