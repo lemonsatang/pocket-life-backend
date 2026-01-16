@@ -16,4 +16,7 @@ public interface TxRepository extends JpaRepository<Tx, Long> {
     List<Tx> findTop10ByUserIdOrderByTxDateAscIdAsc(String userId);
     // 거래내역 최신 순 정렬
     List<Tx> findTop10ByUserIdOrderByTxDateDescIdDesc(String userId);
+
+    // 전체 거래내역: 날짜 내림차순 (통계/검색용)
+    List<Tx> findAllByUserIdOrderByTxDateDesc(String userId);
 }

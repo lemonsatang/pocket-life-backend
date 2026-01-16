@@ -17,7 +17,10 @@ public class TxController {
     private String uid(Principal p){ return p.getName(); }
 
     @GetMapping
-    public List<Tx> list(@RequestParam int year,@RequestParam int month, Principal p){
+    public List<Tx> list(@RequestParam(required = false) Integer year, @RequestParam(required = false) Integer month, Principal p){
+        if (year == null || month == null) {
+            return txRepository.findAllByUserIdOrderByTxDateDesc(uid(p));
+        }
         LocalDate s=LocalDate.of(year,month,1), e=s.plusMonths(1).minusDays(1);
         return txRepository.findByUserIdAndTxDateBetweenOrderByTxDateDesc(uid(p),s,e);
     }
