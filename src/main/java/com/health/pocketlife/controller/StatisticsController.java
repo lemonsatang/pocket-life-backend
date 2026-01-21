@@ -1,6 +1,6 @@
 package com.health.pocketlife.controller;
 
-import com.health.pocketlife.dto.CartStatsResponse;
+import com.health.pocketlife.dto.MealRangeStatsResponse;
 import com.health.pocketlife.dto.MealStatsResponse;
 import com.health.pocketlife.jwt.CustomUserDetails;
 import com.health.pocketlife.service.StatisticsService;
@@ -18,16 +18,15 @@ import java.time.LocalDate;
  * 통계 API 컨트롤러 (StatisticsController)
  *
  * [의도]
- * - 로그인한 사용자의 식단(Meal) 및 장바구니(Cart) 데이터를 기반으로
+ * - 로그인한 사용자의 식단(Meal) 데이터를 기반으로
  *   특정 날짜의 통계 정보를 제공하기 위해 생성되었습니다.
  *
  * [구성]
  * 1. GET /api/stats/meal
  *    - 사용자의 해당 날짜 식단 기록을 조회하여 칼로리 및 탄단지 영양소 합계를 반환합니다.
  *    - 권장 칼로리(targetCalories) 비교 값을 포함합니다.
- * 2. GET /api/stats/cart
- *    - 사용자의 해당 날짜 장바구니 목록을 조회하여 구매 완료율을 계산합니다.
- *    - 단순 품목 수가 아닌, 수량(item_count) 가중치를 적용하여 더 정확한 구매율을 제공합니다.
+ * 2. GET /api/stats/meal/range
+ *    - 사용자의 기간 범위 식단 기록을 조회하여 총 칼로리 및 목표 칼로리를 반환합니다.
  */
 @RestController
 @RequestMapping("/api/stats")
@@ -46,13 +45,21 @@ public class StatisticsController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/cart")
-    public ResponseEntity<CartStatsResponse> getCartStats(
+    /**
+     * [추가] 2026-01-XX / 효민
+     * 무엇: 기간 범위 식단 통계 API 엔드포인트 추가
+     * 어디서: StatisticsController.java
+     * 왜: 프론트엔드에서 날짜별 API를 여러 번 호출하는 대신 기간 범위를 한 번에 처리하여 성능 개선
+     * 어떻게: GET /api/stats/meal/range?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD 형식으로 호출, StatisticsService의 getMealRangeStats 호출
+     */
+    @GetMapping("/meal/range")
+    public ResponseEntity<MealRangeStatsResponse> getMealRangeStats(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam("date") LocalDate date) {
-            
+            @RequestParam("startDate") LocalDate startDate,
+            @RequestParam("endDate") LocalDate endDate) {
+        
         String userId = userDetails.getUsername();
-        CartStatsResponse response = statisticsService.getCartStats(userId, date);
+        MealRangeStatsResponse response = statisticsService.getMealRangeStats(userId, startDate, endDate);
         return ResponseEntity.ok(response);
     }
 }

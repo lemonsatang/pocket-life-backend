@@ -14,4 +14,13 @@ public interface MealRepository extends JpaRepository<Meal, Long> {
 
     // 날짜와 유저로 조회
     List<Meal> findAllByMealDateAndUser(LocalDate mealDate, User user);
+
+    /**
+     * [추가] 2026-01-XX / 효민
+     * 무엇: 기간 범위 식단 조회 메서드 추가
+     * 어디서: MealRepository.java
+     * 왜: 프론트엔드에서 기간 범위 통계 API 구현을 위해 기간 범위 조회 기능 필요
+     * 어떻게: JPA 메서드 네이밍 규칙으로 findAllByMealDateBetweenAndUser 생성
+     */
+    List<Meal> findAllByMealDateBetweenAndUser(LocalDate startDate, LocalDate endDate, User user);
 }

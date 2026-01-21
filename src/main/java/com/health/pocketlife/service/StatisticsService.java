@@ -1,11 +1,9 @@
 package com.health.pocketlife.service;
 
-import com.health.pocketlife.dto.CartStatsResponse;
+import com.health.pocketlife.dto.MealRangeStatsResponse;
 import com.health.pocketlife.dto.MealStatsResponse;
-import com.health.pocketlife.entity.Cart;
 import com.health.pocketlife.entity.Meal;
 import com.health.pocketlife.entity.User;
-import com.health.pocketlife.repository.CartRepository;
 import com.health.pocketlife.repository.MealRepository;
 import com.health.pocketlife.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,6 @@ import java.util.List;
 public class StatisticsService {
 
     private final MealRepository mealRepository;
-    private final CartRepository cartRepository;
     private final UserRepository userRepository;
 
     public MealStatsResponse getMealStats(String userId, LocalDate date) {
@@ -67,32 +64,32 @@ public class StatisticsService {
                 .build();
     }
 
-    public CartStatsResponse getCartStats(String userId, LocalDate date) {
+    /**
+     * [추가] 2026-01-XX / 효민
+     * 무엇: 기간 범위 식단 통계 계산 메서드 추가
+     * 어디서: StatisticsService.java
+     * 왜: 프론트엔드에서 기간 범위 식단 통계 API(/api/stats/meal/range) 구현을 위해 필요
+     * 어떻게: 기간 범위 내 식단 데이터 조회 후 총 칼로리 합산, 목표 칼로리는 기간 일수 × 2500으로 계산
+     */
+    public MealRangeStatsResponse getMealRangeStats(String userId, LocalDate startDate, LocalDate endDate) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Cart> carts = cartRepository.findAllByShoppingDateAndUser(date, user);
+        List<Meal> meals = mealRepository.findAllByMealDateBetweenAndUser(startDate, endDate, user);
 
-        int totalQuantity = 0;
-        int purchasedQuantity = 0;
-
-        for (Cart cart : carts) {
-            int count = (cart.getCount() != null) ? cart.getCount() : 1;
-            totalQuantity += count;
-            if (Boolean.TRUE.equals(cart.getIsBought())) {
-                purchasedQuantity += count;
-            }
+        int totalCalories = 0;
+        for (Meal meal : meals) {
+            totalCalories += (meal.getCalories() != null) ? meal.getCalories() : 0;
         }
 
-        double purchaseRate = 0.0;
-        if (totalQuantity > 0) {
-            purchaseRate = (double) purchasedQuantity / totalQuantity * 100.0;
-        }
+        // targetCalories = 기간 일수 * 일일 목표 칼로리 (2500)
+        long days = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        int targetCalories = (int) (days * 2500);
 
-        return CartStatsResponse.builder()
-                .totalQuantity(totalQuantity)
-                .purchasedQuantity(purchasedQuantity)
-                .purchaseRate(purchaseRate)
+        return MealRangeStatsResponse.builder()
+                .totalCalories(totalCalories)
+                .targetCalories(targetCalories)
                 .build();
     }
+
 }
