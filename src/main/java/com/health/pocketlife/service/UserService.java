@@ -39,4 +39,18 @@ public class UserService {
     public boolean idChk(String usrid) {
         return userRepository.existsByUsrid(usrid);
     }
+
+    public String findId(String usrnm, String tel) {
+        String pureNumbers = tel.replaceAll("[^0-9]", "");
+
+        // 2. 숫자를 DB 형식(010-1111-2222)으로 변환
+        String formattedTel = pureNumbers.replaceAll("(\\d{3})(\\d{3,4})(\\d{4})", "$1-$2-$3");
+
+        return userRepository.findByUsrnmAndTel(usrnm, formattedTel)
+                .map(user -> {
+                    String userId = user.getUsrid();
+                    return userId.substring(0, 3) + "*".repeat(userId.length() - 3);
+                })
+                .orElse("fail");
+    }
 }

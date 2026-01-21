@@ -41,4 +41,11 @@ public class UserController {
 
         return ResponseEntity.ok(isDuplicate);
     }
+
+    // 아이디 찾기
+    @PostMapping("/findId")
+    public ResponseEntity<String> findId(@RequestBody UserDTO userDTO){
+        String foundId = userService.findId(userDTO.getUsrnm(), userDTO.getTel());
+        return ResponseEntity.ok(foundId);
+    }
 }

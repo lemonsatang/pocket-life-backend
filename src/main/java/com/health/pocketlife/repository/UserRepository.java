@@ -9,4 +9,5 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByUsrid(String usrid);
     boolean existsByUsrid(String usrid); // 아이디 중복검사
 
+    Optional<User> findByUsrnmAndTel(String usrnm, String tel);
 }
