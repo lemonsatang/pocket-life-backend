@@ -19,8 +19,13 @@ public class Tx {
     @Enumerated(EnumType.STRING) @Column(nullable = false)
     private Type type; // 수입(INCOME) / 지출(EXPENSE)
 
+    @Column(length = 7)
     private String category; // 카테고리(교통/식비 등)
-    private String title;    // 항목(급여/커피 등)
+
+    @Column(nullable = false, length = 7)
+    private String title;// 항목(급여/커피 등)
+
+    @Column(length = 7)
     private String memo;     // 메모(비고)
 
     @Column(nullable = false)
