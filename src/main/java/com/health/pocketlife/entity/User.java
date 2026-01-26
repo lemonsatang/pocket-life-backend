@@ -42,8 +42,8 @@ public class User {
 
     @Column(length = 20)
     private String provider; // 일반가입:local,  소셜:kakao, naver, google...
-    
-    @Column(name = "provider_id")
+
+    @Column(name = "provider_id",length = 20)
     private String providerId; // 소셜 서비스에서 넘겨주는 고유 식별번호
 
     @Enumerated(EnumType.STRING)
