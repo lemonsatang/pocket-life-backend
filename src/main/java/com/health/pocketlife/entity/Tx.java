@@ -22,10 +22,10 @@ public class Tx {
     @Column(length = 7)
     private String category; // 카테고리(교통/식비 등)
 
-    @Column(nullable = false, length = 7)
+    @Column(nullable = false, length = 10)
     private String title;// 항목(급여/커피 등)
 
-    @Column(length = 7)
+    @Column(length = 10)
     private String memo;     // 메모(비고)
 
     @Column(nullable = false)
